@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLFC Touchline Manager</title>
+<meta name="description" content="A Premier League club-management sim — pick your club, run the transfer market, set your lineup, and live the season.">
+<link rel="stylesheet" href="css/styles.css?v=92">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ TOP BAR (career mode only) ============ -->
+  <div class="topbar hidden" id="topbar">
+    <div class="crest sm" id="topbarCrest"></div>
+    <div class="brand">
+      <span id="topbarClub">—</span>
+      <small id="topbarManager">—</small>
+    </div>
+    <div class="spacer"></div>
+    <div class="stat"><span class="label">Season</span><span id="topbarSeason">—</span></div>
+    <div class="stat"><span class="label">Matchweek</span><span id="topbarWeek">—</span></div>
+    <div class="stat"><span class="label">Budget</span><span id="topbarBudget">—</span></div>
+    <div class="stat"><span class="label">Wages</span><span id="topbarWage">—</span></div>
+    <button class="topbar-trophy" id="btnManager" title="Manager profile" type="button">👔</button>
+    <button class="topbar-trophy" id="btnHonours" title="Awards & Teams of the Year" type="button">🏅</button>
+    <button class="topbar-trophy" id="btnTrophies" title="Trophy cabinet" type="button">🏆</button>
+  </div>
+
+  <!-- ============ MANAGER PROFILE (modal) ============ -->
+  <div class="modal-overlay hidden" id="managerModal">
+    <div class="modal modal-wide">
+      <div class="modal-head">
+        <h3 style="margin:0;">Manager Profile</h3>
+        <button class="ghost small" id="btnManagerClose" type="button">Close</button>
+      </div>
+      <div id="managerBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ TROPHY CABINET (modal) ============ -->
+  <div class="modal-overlay hidden" id="trophyModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 style="margin:0;">Trophy Cabinet</h3>
+        <button class="ghost small" id="btnCloseTrophies" type="button">Close</button>
+      </div>
+      <div id="trophyCabinetBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ HONOURS / AWARDS (modal) ============ -->
+  <div class="modal-overlay hidden" id="honoursModal">
+    <div class="modal modal-wide">
+      <div class="modal-head">
+        <h3 style="margin:0;">Awards &amp; Teams of the Year</h3>
+        <button class="ghost small" id="btnHonoursClose" type="button">Close</button>
+      </div>
+      <div class="honours-tabs" id="honoursTabs"></div>
+      <div id="honoursBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ PLAYER PROFILE (modal) ============ -->
+  <div class="modal-overlay hidden" id="profileModal">
+    <div class="modal modal-wide">
+      <div class="modal-head">
+        <h3 style="margin:0;" id="profileTitle">Player</h3>
+        <button class="ghost small" id="btnProfileClose" type="button">Close</button>
+      </div>
+      <div id="profileBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ PLAYER ROLE & INSTRUCTIONS (modal) ============ -->
+  <div class="modal-overlay hidden" id="roleModal">
+    <div class="modal modal-wide">
+      <div class="modal-head">
+        <h3 style="margin:0;" id="roleTitle">Player Role</h3>
+        <button class="ghost small" id="btnRoleClose" type="button">Close</button>
+      </div>
+      <div id="roleBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ REBALANCE BUDGETS (modal) ============ -->
+  <div class="modal-overlay hidden" id="financeModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 style="margin:0;">Rebalance Budgets</h3>
+        <button class="ghost small" id="btnFinanceClose" type="button">Close</button>
+      </div>
+      <div id="financeBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ CONTRACT NEGOTIATION (modal) ============ -->
+  <div class="modal-overlay hidden" id="contractModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 style="margin:0;" id="contractTitle">Contract Offer</h3>
+        <button class="ghost small" id="btnContractClose" type="button">Close</button>
+      </div>
+      <div id="contractBody"></div>
+    </div>
+  </div>
+
+  <nav class="tabs hidden" id="tabs">
+    <div class="nav-brand"><span class="nav-mark">PL</span><span class="nav-brand-txt">PLFC<small>Touchline Manager</small></span></div>
+    <button data-tab="hub" id="tabHub"><span class="nav-ico">🏠</span><span class="nav-lbl">Hub</span></button>
+    <button data-tab="squad" id="tabSquad"><span class="nav-ico">👥</span><span class="nav-lbl">Squad</span></button>
+    <button data-tab="market" id="tabMarket"><span class="nav-ico">🔁</span><span class="nav-lbl">Transfers</span></button>
+    <button data-tab="coaches" id="tabCoaches"><span class="nav-ico">🧑‍🏫</span><span class="nav-lbl">Staff</span></button>
+    <button data-tab="academy" id="tabAcademy"><span class="nav-ico">🌱</span><span class="nav-lbl">Academy</span></button>
+    <button data-tab="lineup" id="tabLineup"><span class="nav-ico">📋</span><span class="nav-lbl">Lineup</span></button>
+    <button data-tab="table" id="tabTable"><span class="nav-ico">📊</span><span class="nav-lbl">Table</span></button>
+  </nav>
+
+  <main id="content">
+  <!-- ============ START / NEW CAREER ============ -->
+  <section class="screen" id="screen-start">
+    <div class="hero">
+      <p class="eyebrow">2026/27 Season</p>
+      <h1>PLFC Touchline Manager</h1>
+      <p>Pick a Premier League club, build your squad, work the transfer market, and live every matchday from the touchline.</p>
+    </div>
+
+    <div class="panel hidden" id="continuePanel">
+      <h3>Continue career</h3>
+      <p class="muted" id="continueSummary"></p>
+      <button class="primary" id="btnContinue">Continue</button>
+      <button class="ghost danger small" id="btnDeleteSave">Delete save</button>
+    </div>
+
+    <div class="panel">
+      <h3>Manager name</h3>
+      <input type="text" id="managerNameInput" placeholder="Enter your name" maxlength="24" style="width:100%; max-width: 360px;">
+    </div>
+
+    <div class="panel">
+      <h3>Pick your league &amp; club</h3>
+      <input type="text" id="clubSearch" class="club-search" placeholder="Search a club or league…" autocomplete="off" spellcheck="false">
+      <div class="league-nav" id="leagueBar"></div>
+      <div class="club-grid" id="clubGrid"></div>
+    </div>
+
+    <div style="text-align:center; margin-top:1rem;">
+      <button class="primary" id="btnBeginCareer" disabled>Begin Career</button>
+      <p class="muted" id="startError" style="margin-top:0.6rem;"></p>
+    </div>
+  </section>
+
+  <!-- ============ HUB ============ -->
+  <section class="screen hidden" id="screen-hub">
+    <div id="hubWindowBanner"></div>
+    <div class="panel">
+      <p class="eyebrow">Next fixture</p>
+      <div class="nextfix">
+        <div id="nextFixtureText" style="font-family:var(--font-display); font-size:1.1rem;">—</div>
+        <button class="primary" id="btnGoToLineup">Set Lineup &amp; Play</button>
+      </div>
+    </div>
+    <div class="panel" id="hubObjectivePanel">
+      <p class="eyebrow">Board Objective</p>
+      <div id="hubObjectiveBody" class="muted">—</div>
+    </div>
+    <div class="panel" id="hubNewsPanel">
+      <h3>News Feed</h3>
+      <div id="hubNewsBody" class="muted">—</div>
+    </div>
+    <div class="grid-3">
+      <div class="panel" id="hubFormSummary">
+        <h3>Club Snapshot</h3>
+        <div id="hubSnapshot" class="muted">—</div>
+      </div>
+      <div class="panel" id="hubTableSummary">
+        <h3>League Position</h3>
+        <div id="hubPosition" class="muted">—</div>
+      </div>
+      <div class="panel" id="hubHistorySummary">
+        <h3>Career History</h3>
+        <div id="hubHistory" class="muted">No completed seasons yet.</div>
+      </div>
+    </div>
+    <div class="panel" id="hubStatsPanel">
+      <div class="stats-toolbar">
+        <h3 style="margin:0;">Season Stat Leaders</h3>
+        <div class="scope-toggle">
+          <button class="scope-btn active" data-scope="league" type="button">League</button>
+          <button class="scope-btn" data-scope="team" type="button">My Squad</button>
+        </div>
+      </div>
+      <div class="stat-columns" id="hubStatColumns"></div>
+    </div>
+    <div class="grid-2">
+      <div class="panel" id="hubCupPanel">
+        <h3 id="hubCupTitle">FA Cup</h3>
+        <div id="hubCupBody" class="muted">—</div>
+      </div>
+      <div class="panel" id="hubCarabaoPanel">
+        <h3 id="hubCarabaoTitle">Carabao Cup</h3>
+        <div id="hubCarabaoBody" class="muted">—</div>
+      </div>
+    </div>
+    <div class="panel" id="hubVertuPanel">
+      <h3 id="hubVertuTitle">Vertu Trophy</h3>
+      <div id="hubVertuBody" class="muted">—</div>
+    </div>
+    <div class="panel" id="hubEuroPanel">
+      <h3 id="hubEuroTitle">European Football</h3>
+      <div id="hubEuroBody" class="muted">—</div>
+    </div>
+  </section>
+
+  <!-- ============ SQUAD ============ -->
+  <section class="screen hidden" id="screen-squad">
+    <div class="panel">
+      <h2>Your Squad</h2>
+      <div id="squadWindowBanner"></div>
+      <div id="squadControls"></div>
+      <div class="list-head"><div></div><div>Player</div><div>Age</div><div>Rating</div><div>Pot</div><div>Value</div><div></div></div>
+      <div id="squadList"></div>
+    </div>
+  </section>
+
+  <!-- ============ MARKET ============ -->
+  <section class="screen hidden" id="screen-market">
+    <div class="panel">
+      <div class="market-toolbar">
+        <h2 style="margin:0;">Transfer Market</h2>
+        <div>
+          <span class="muted mono" id="marketBudgetLabel" style="margin-right:0.8rem;"></span>
+          <button id="btnFinance">⇄ Budgets</button>
+          <button id="btnReroll">⟳ Reroll Market</button>
+        </div>
+      </div>
+      <div id="marketWindowBanner"></div>
+      <div id="marketControls"></div>
+      <div class="list-head"><div></div><div>Player</div><div>Age</div><div>Rating</div><div>Pot</div><div>Price</div><div></div></div>
+      <div id="marketList"></div>
+    </div>
+    <div class="panel">
+      <div class="market-toolbar">
+        <h2 style="margin:0;">Free Agents</h2>
+        <span class="muted" style="font-size:0.78rem;">Clubless players — sign any time, even outside the window. Cheap, but the good ones are rare.</span>
+      </div>
+      <div class="list-head"><div></div><div>Player</div><div>Age</div><div>Rating</div><div>Pot</div><div>Fee</div><div></div></div>
+      <div id="freeAgentList"></div>
+    </div>
+    <div class="panel hidden" id="pendingPanel">
+      <div class="market-toolbar">
+        <h2 style="margin:0;">Pre-agreed Signings</h2>
+        <span class="muted" style="font-size:0.78rem;" id="pendingHint"></span>
+      </div>
+      <div class="list-head"><div></div><div>Player</div><div>Age</div><div>Rating</div><div>Pot</div><div>Fee</div><div></div></div>
+      <div id="pendingList"></div>
+    </div>
+  </section>
+
+  <!-- ============ STAFF & ACADEMY ============ -->
+  <section class="screen hidden" id="screen-coaches">
+    <div class="panel">
+      <h2>Coaching Staff</h2>
+      <p class="muted" style="font-size:0.84rem;">Your position coaches are the main driver of how your senior players develop each season.</p>
+      <div id="coachStaff"></div>
+    </div>
+    <div class="panel">
+      <h2 style="margin-bottom:0.3rem;">Medical &amp; Fitness</h2>
+      <p class="muted" style="font-size:0.84rem; margin-top:0;">Your physio cuts how often injuries strike, shortens them, and speeds match-fitness recovery between games. Rest tired legs and your squad stays healthier.</p>
+      <div id="medicalStaff"></div>
+      <div class="eyebrow" style="margin:1rem 0 0.3rem;">Treatment Room</div>
+      <div id="medicalInjured"></div>
+    </div>
+    <div class="panel">
+      <h2 style="margin-bottom:0.3rem;">Scouting</h2>
+      <p class="muted" style="font-size:0.84rem; margin-top:0;">Send a talent scout to look for a type of player. They return in a few matchweeks with a signable shortlist — better scouts come back sooner, with more names, higher quality, and a signing discount.</p>
+      <div id="scoutTeam"></div>
+      <div class="eyebrow" style="margin:1rem 0 0.3rem;">Scouting Reports</div>
+      <div id="scoutReports"></div>
+      <div class="eyebrow" style="margin:1.3rem 0 0.3rem;">Shortlist / Watchlist</div>
+      <p class="muted" style="font-size:0.78rem; margin:0 0 0.4rem;">Saved targets you can sign whenever you like. Their rating, wage demand and fee stay live — if a prospect kicks on, they cost more.</p>
+      <div id="watchlistBody"></div>
+    </div>
+    <div class="panel">
+      <h2 style="margin-bottom:0.3rem;">Staff Market</h2>
+      <p class="muted" style="font-size:0.8rem; margin-top:0;">Position coaches, youth scouts, youth coaches and talent scouts. A fresh shortlist arrives every matchweek — there's no reroll.</p>
+      <div class="list-head coach-head"><div></div><div>Staff</div><div>Rating</div><div>Fee</div><div></div></div>
+      <div id="coachMarketList"></div>
+    </div>
+  </section>
+
+  <!-- ============ PENALTY SHOOTOUT ============ -->
+  <section class="screen hidden" id="screen-shootout">
+    <div class="panel" id="shootoutPanel">
+      <div class="shootout-head">
+        <h2 id="shootoutTitle" style="margin:0;">Penalty Shootout</h2>
+        <div class="shootout-score" id="shootoutScore">0 – 0</div>
+      </div>
+      <div class="shootout-tallies" id="shootoutTallies"></div>
+      <div class="shootout-banner" id="shootoutBanner">—</div>
+      <div class="goal-wrap" id="goalWrap"></div>
+      <p class="muted shootout-hint" id="shootoutHint"></p>
+      <div style="text-align:center;">
+        <button class="primary hidden" id="btnShootoutContinue">Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ACADEMY ============ -->
+  <section class="screen hidden" id="screen-academy">
+    <div class="panel">
+      <h2>Youth Academy</h2>
+      <p class="muted" style="font-size:0.84rem;">Runs itself: the scout finds a prospect four times a season, the youth coach develops them, and at 18 they graduate to your squad. Upgrade the academy staff from the Staff tab.</p>
+      <div id="academyStaff"></div>
+      <div class="eyebrow" style="margin:1rem 0 0.3rem;">Graduating</div>
+      <div id="academyGraduates"></div>
+      <div class="eyebrow" style="margin:1rem 0 0.3rem;">Prospects</div>
+      <div id="academyProspects"></div>
+    </div>
+  </section>
+
+  <!-- ============ LINEUP ============ -->
+  <section class="screen hidden" id="screen-lineup">
+    <div class="panel">
+      <h2>Pick Your XI</h2>
+      <div class="lineup-layout">
+        <div class="lineup-pitch-col">
+          <div class="lineup-controls">
+            <span class="eyebrow">Formation</span>
+            <select id="formationSelect"></select>
+            <button id="btnAutoPick">Auto Pick</button>
+            <div class="pitch-legend">
+              <span>Fresh</span>
+              <span class="pl-bar"></span>
+              <span>Tired</span>
+            </div>
+          </div>
+          <div class="tactics-panel" id="tacticsPanel"></div>
+          <div class="pitch-wrap" id="pitch">
+            <div class="halfway"></div><div class="centre-circle"></div>
+            <div class="box-top"></div><div class="box-bottom"></div>
+          </div>
+          <p class="pitch-hint">👆 Tap a player to set their role &amp; instructions</p>
+        </div>
+        <div class="lineup-side-col">
+          <div id="lineupSlots"></div>
+          <div class="slot-group">
+            <span class="eyebrow">Bench</span>
+            <div class="bench-list" id="benchList"></div>
+          </div>
+          <div class="lineup-playbar">
+            <button class="primary" id="btnPlayMatch">Start Game</button>
+            <p class="muted" id="lineupError" style="margin:0; text-align:center;"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TABLE ============ -->
+  <section class="screen hidden" id="screen-table">
+    <div class="panel">
+      <div class="stats-toolbar">
+        <h2 id="tableTitle" style="margin:0;">Premier League Table</h2>
+        <div class="scope-toggle">
+          <button class="scope-btn table-league-btn active" data-league="PL" type="button">Prem</button>
+          <button class="scope-btn table-league-btn" data-league="CH" type="button">Champ</button>
+          <button class="scope-btn table-league-btn" data-league="L1" type="button">League One</button>
+          <button class="scope-btn table-league-btn" data-league="L2" type="button">League Two</button>
+          <button class="scope-btn table-league-btn" data-league="LL" type="button">La Liga</button>
+          <button class="scope-btn table-league-btn" data-league="SG" type="button">Segunda</button>
+        </div>
+      </div>
+      <table class="ladder">
+        <thead><tr><th>#</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead>
+        <tbody id="ladderBody"></tbody>
+      </table>
+      <div class="legend" id="tableLegend"></div>
+    </div>
+  </section>
+
+  <!-- ============ LIVE MATCH ============ -->
+  <section class="screen hidden" id="screen-match">
+    <div class="match-competition" id="matchCompetition"></div>
+    <div class="scoreboard">
+      <div class="side">
+        <div class="crest" id="matchHomeCrest"></div>
+        <div class="club-name" id="matchHomeName">—</div>
+      </div>
+      <div class="mid">
+        <div class="score" id="matchScore">0 – 0</div>
+        <div class="clock" id="matchClock">0'</div>
+        <div class="status" id="matchStatus">Ready</div>
+      </div>
+      <div class="side">
+        <div class="crest" id="matchAwayCrest"></div>
+        <div class="club-name" id="matchAwayName">—</div>
+      </div>
+    </div>
+
+    <div class="opp-brief hidden" id="oppBrief"></div>
+
+    <div class="mpitch" id="matchPitch">
+      <div class="mp-grass">
+        <div class="mp-line mp-halfway"></div>
+        <div class="mp-circle"></div>
+        <div class="mp-box mp-box-l"></div><div class="mp-box mp-box-r"></div>
+        <div class="mp-6 mp-6-l"></div><div class="mp-6 mp-6-r"></div>
+        <div class="mp-goal mp-goal-l"></div><div class="mp-goal mp-goal-r"></div>
+        <div class="mp-players" id="mpPlayers"></div>
+        <div class="mp-ball" id="mpBall"></div>
+        <div class="mp-flash" id="mpFlash"></div>
+        <div class="goal-flash" id="goalFlash">
+          <div class="gf-word">GOAL!</div>
+          <div class="gf-scorer" id="gfScorer"></div>
+          <div class="gf-assist" id="gfAssist"></div>
+          <div class="gf-score" id="gfScore"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="momentum-labels"><span id="momLabelH">Home</span><span id="momStatus" class="mom-status">Kick-off</span><span id="momLabelA">Away</span></div>
+    <div class="momentum-bar"><div class="home" id="momHome" style="width:50%;"></div><div class="away" id="momAway" style="width:50%;"></div></div>
+
+    <div class="live-stats" id="matchLiveStats">
+      <div class="ls-poss">
+        <span class="ls-side mono" id="lsPossH">50%</span>
+        <div class="ls-bar"><div class="ls-fill" id="lsPossBar" style="width:50%;"></div></div>
+        <span class="ls-side mono" id="lsPossA">50%</span>
+      </div>
+      <div class="ls-grid">
+        <div class="ls-num mono" id="lsShotsH">0</div><div class="ls-lbl">Shots</div><div class="ls-num mono" id="lsShotsA">0</div>
+        <div class="ls-num mono" id="lsSotH">0</div><div class="ls-lbl">On target</div><div class="ls-num mono" id="lsSotA">0</div>
+        <div class="ls-num mono" id="lsXgH">0.0</div><div class="ls-lbl">xG</div><div class="ls-num mono" id="lsXgA">0.0</div>
+      </div>
+    </div>
+
+    <div class="match-controls">
+      <button class="primary" id="btnMatchStart">Start</button>
+      <button id="btnMatchPause" disabled>Pause</button>
+      <div class="speedgroup">
+        <button data-speed="1" class="speed-btn active">1x</button>
+        <button data-speed="2" class="speed-btn">2x</button>
+        <button data-speed="4" class="speed-btn">4x</button>
+      </div>
+      <button id="btnMatchRatings" class="hidden">📊 Ratings</button>
+      <button id="btnMatchSubs" class="hidden">🔁 Subs</button>
+      <button id="btnMatchSkip">Skip to Full Time</button>
+    </div>
+
+    <div class="match-mentality hidden" id="matchTactics"></div>
+
+    <div class="ratings-panel hidden" id="matchRatings">
+      <div class="ratings-head">
+        <span class="eyebrow">Player Ratings — live</span>
+        <button class="small primary" id="btnRatingsClose">Resume ▶</button>
+      </div>
+      <p class="muted" style="font-size:0.76rem;margin:0.2rem 0 0.5rem;">Struggling players are listed first — spot where it's going wrong.</p>
+      <div id="matchRatingsList"></div>
+    </div>
+
+    <div class="subs-panel hidden" id="subsPanel">
+      <div class="subs-head">
+        <span class="eyebrow">Substitutions — <span id="subsLeft">5</span> left</span>
+        <button class="small primary" id="btnSubsClose">Resume ▶</button>
+      </div>
+      <p class="muted" id="subsHint" style="font-size:0.78rem;margin:0.3rem 0 0.6rem;">Tap a player on the pitch, then a bench player to bring on.</p>
+      <div class="subs-cols">
+        <div><div class="eyebrow" style="margin-bottom:0.3rem;">On pitch</div><div id="subsOn"></div></div>
+        <div><div class="eyebrow" style="margin-bottom:0.3rem;">Bench</div><div id="subsBench"></div></div>
+      </div>
+    </div>
+
+    <div class="commentary-feed" id="commentaryFeed"></div>
+
+    <div id="matchReport" class="match-report hidden"></div>
+
+    <div style="text-align:center; margin-top:1rem;">
+      <button class="primary hidden" id="btnMatchContinue">Continue</button>
+    </div>
+  </section>
+
+  <!-- ============ SEASON END ============ -->
+  <section class="screen hidden" id="screen-seasonend"></section>
+
+  <!-- ============ JOB MARKET ============ -->
+  <section class="screen hidden" id="screen-jobs"></section>
+  </main>
+
+</div>
+
+<script src="js/data.js?v=92"></script>
+<script src="js/state.js?v=92"></script>
+<script src="js/positions.js?v=92"></script>
+<script src="js/roles.js?v=92"></script>
+<script src="js/lineup.js?v=92"></script>
+<script src="js/match.js?v=92"></script>
+<script src="js/stats.js?v=92"></script>
+<script src="js/players.js?v=92"></script>
+<script src="js/cup.js?v=92"></script>
+<script src="js/vertu.js?v=92"></script>
+<script src="js/europe.js?v=92"></script>
+<script src="js/season.js?v=92"></script>
+<script src="js/board.js?v=92"></script>
+<script src="js/career.js?v=92"></script>
+<script src="js/news.js?v=92"></script>
+<script src="js/squad.js?v=92"></script>
+<script src="js/contracts.js?v=92"></script>
+<script src="js/coaches.js?v=92"></script>
+<script src="js/academy.js?v=92"></script>
+<script src="js/scouting.js?v=92"></script>
+<script src="js/fitness.js?v=92"></script>
+<script src="js/morale.js?v=92"></script>
+<script src="js/tactics.js?v=92"></script>
+<script src="js/shootout.js?v=92"></script>
+<script src="js/dynamics.js?v=92"></script>
+<script src="js/ui.js?v=92"></script>
+<script src="js/main.js?v=92"></script>
+</body>
+</html>
