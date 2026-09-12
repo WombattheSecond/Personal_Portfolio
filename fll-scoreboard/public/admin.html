@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FLL Admin</title>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body>
+
+<h1>FLL Admin</h1>
+
+<h2>Settings</h2>
+
+<input id="tournamentName" placeholder="Tournament">
+<input id="season" placeholder="Season">
+<input id="venue" placeholder="Venue">
+<input id="tableCount" placeholder="Tables">
+
+<button onclick="saveSettings()">Save</button>
+
+<hr>
+
+<h2>Add Team</h2>
+
+<input id="teamNumber" placeholder="Number">
+<input id="teamName" placeholder="Name">
+<button onclick="addTeam()">Add</button>
+
+<hr>
+
+<h2>Teams</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Number</th>
+      <th>Name</th>
+      <th>Check-in</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody id="teamsBody"></tbody>
+</table>
+
+<script src="/js/admin.js"></script>
+
+</body>
+</html>

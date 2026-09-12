@@ -1,0 +1,1 @@
+Making a FIRST Lego League Scoreboard to use at tournaments to display active ladder positions and run scores. This should run across easily accessible sources and should be able to be run from one location and be accessed all across the tournament. 

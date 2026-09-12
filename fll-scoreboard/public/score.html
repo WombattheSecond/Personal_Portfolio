@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FLL Score Entry</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #container {
+      max-width: 1000px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .team {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .team-info {
+      font-weight: bold;
+      min-width: 220px;
+    }
+
+    .runs {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .run-input {
+      width: 90px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid #ccc;
+      text-align: center;
+      font-size: 16px;
+      outline: none;
+      transition: 0.15s;
+    }
+
+    .run-input:focus {
+      border-color: #4da3ff;
+      background: #eef6ff;
+    }
+
+    .locked {
+      background: #2e8b57;
+      color: white;
+      border-color: #2e8b57;
+      font-weight: bold;
+    }
+
+    .header {
+      max-width: 1000px;
+      margin: auto;
+      margin-bottom: 15px;
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .sub {
+      font-size: 13px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>Score Entry</h1>
+  <div class="sub">Type scores directly into boxes — they auto-save</div>
+</div>
+
+<div id="container"></div>
+
+<script>
+
+    let teams = [];
+    let runs = [];
+    
+    async function loadData() {
+    
+      const [tRes, rRes] = await Promise.all([
+        fetch("/api/teams"),
+        fetch("/api/runs")
+      ]);
+    
+      teams = await tRes.json();
+      runs = await rRes.json();
+    
+      render();
+    }
+    
+    function getScore(teamId, round) {
+      const r = runs.find(x =>
+        x.teamId == teamId && x.round == round
+      );
+      return r ? r.score : "";
+    }
+    
+    async function saveScore(teamId, round, score) {
+    
+      if (score === "") return;
+    
+      await fetch("/api/runs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          teamId,
+          round,
+          score
+        })
+      });
+    
+      // refresh local state
+      await loadData();
+    }
+    
+    function render() {
+    
+      const container =
+        document.getElementById("container");
+    
+      container.innerHTML = "";
+    
+      teams.forEach(team => {
+    
+        const div = document.createElement("div");
+        div.className = "team";
+    
+        div.innerHTML = `
+          <div class="team-info">
+            ${team.teamNumber} — ${team.name}
+          </div>
+    
+          <div class="runs">
+    
+            ${[1,2,3].map(round => {
+    
+              const value = getScore(team.id, round);
+    
+              return `
+                <input
+                  class="run-input"
+                  type="number"
+                  value="${value}"
+                  onblur="saveScore('${team.id}', ${round}, this.value)"
+                  onkeydown="if(event.key==='Enter'){this.blur()}"
+                  placeholder="R${round}"
+                />
+              `;
+            }).join("")}
+    
+          </div>
+        `;
+    
+        container.appendChild(div);
+      });
+    }
+    
+    loadData();
+    
+    </script>
+</body>
+</html>
