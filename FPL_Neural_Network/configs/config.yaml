@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# Central configuration. Nothing in src/ should hardcode a path or a season
+# list - read it from here instead, so moving the data directory is a one-line
+# change rather than a find-and-replace.
+# ---------------------------------------------------------------------------
+
+paths:
+  # Upstream clone of github.com/vaastav/Fantasy-Premier-League.
+  # Read-only. Never written to by any code in this project.
+  raw: data/raw/fpl
+
+  # Canonical long table: one row per player-fixture, all seasons,
+  # stable IDs, normalised schema. Written by src/canonical/.
+  interim: data/interim
+
+  # Model-ready feature matrices. Written by src/features/.
+  processed: data/processed
+
+  # Hand-maintained lookups. COMMITTED to git - these are source, not data.
+  reference: reference
+
+  # Trained weights, predictions, generated reports. Gitignored.
+  artifacts: artifacts
+
+seasons:
+  # Seasons to ingest. Order matters - this is also the chronological order
+  # used by the walk-forward backtest.
+  all:
+    - "2016-17"
+    - "2017-18"
+    - "2018-19"
+    - "2019-20"   # Covid: 3-month suspension, empty stadiums from restart
+    - "2020-21"   # Covid: empty stadiums, 5 substitutions
+    - "2021-22"
+    - "2022-23"   # first season with native FPL expected_* columns
+    - "2023-24"
+    - "2024-25"
+    - "2025-26"   # defensive-contribution points introduced
+    - "2026-27"
+
+  # Season to explore first in step 1. Modern schema, complete, no Covid.
+  exploration: "2023-24"
+
+  # Held out entirely. Do not look at this until the very end.
+  final_holdout: "2025-26"
+
+  # Live season - incomplete, refreshed weekly from upstream.
+  current: "2026-27"
+
+  # Flagged for their disrupted schedules and absent crowds. Not excluded
+  # automatically - decide per experiment and record the decision.
+  anomalous:
+    - "2019-20"
+    - "2020-21"
+
+validation:
+  # Walk-forward only. Never random k-fold on this data.
+  scheme: walk_forward
+  # Seasons used as rolling test folds (final_holdout excluded).
+  test_seasons:
+    - "2023-24"
+    - "2024-25"
+  min_train_gameweeks: 38
+
+random_seed: 17

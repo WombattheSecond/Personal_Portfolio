@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# Provenance record for data/raw/. COMMITTED.
+#
+# data/raw/ is gitignored, so THIS FILE is the only record of which version of
+# the upstream data produced a given set of results. The upstream repo is
+# updated weekly during the season; without a pinned commit you cannot tell
+# whether a metric moved because of your model or because the data changed
+# underneath you.
+#
+# Update `commit` and `pulled_at` every time you pull upstream, in the same
+# commit as any results that depend on the new data.
+# ---------------------------------------------------------------------------
+
+source:
+  name: vaastav/Fantasy-Premier-League
+  url: https://github.com/vaastav/Fantasy-Premier-League
+  # Fill in after the initial clone:
+  #   git -C data/raw/fpl rev-parse HEAD
+  commit: 9779cdbc0c07f6c900c2d0c181ddf6bb9c800f88
+  pulled_at: 2026-09-08
+
+# Secondary source, vendored inside the upstream repo under each season's
+# understat/ directory. Needed for xG/xA before 2022-23, when FPL began
+# publishing expected_* natively.
+secondary:
+  name: understat
+  note: bundled within the upstream repo, no separate pull required
+
+seasons_present:
+  - "2016-17"
+  - "2017-18"
+  - "2018-19"
+  - "2019-20"
+  - "2020-21"
+  - "2021-22"
+  - "2022-23"
+  - "2023-24"
+  - "2024-25"
+  - "2025-26"
+  - "2026-27"   # in progress at time of pull
+
+known_issues:
+  - "FPL `element` ids are reassigned every season - not a stable player identity.
+     RESOLVED: players_raw.csv `code` is globally stable and is joined on instead."
+  - "2016-17..2018-19 CSVs are latin-1 encoded, not utf-8."
+  - "2021-22 merged_gw labels 101 goalkeeper rows 'GKP' rather than 'GK'.
+     Position is therefore derived from players_raw.element_type, never from
+     merged_gw's own position column."
+  - "2019-20 GW29 Man City v Arsenal was postponed and replayed as GW39. FPL keeps
+     both under one fixture id; the GW29 rows are zero-minute placeholders."
+  - "2025-26 contains 10 exactly-duplicated rows (upstream double-scrape)."
+  - "2024-25+ include managers as pseudo-players (position AM/MNG). Dropped."
+  - "Column schemas drift between seasons; absent columns must be NaN, never 0."
+  - "`opponent_team` is a season-local integer, not a stable club id."
+  - "Scoring rules change between seasons - historical `total_points` is not
+     comparable across them. Model components, not points."

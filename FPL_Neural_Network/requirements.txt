@@ -1,0 +1,21 @@
+# Core
+pandas
+numpy
+pyarrow          # parquet
+pyyaml
+
+# Querying parquet without loading it all
+duckdb
+
+# Baselines and the GBM control
+scikit-learn
+lightgbm
+
+# The neural model
+torch
+
+# Exploration
+jupyterlab
+matplotlib
+seaborn
+tqdm
