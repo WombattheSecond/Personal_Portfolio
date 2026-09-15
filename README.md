@@ -4,6 +4,19 @@ This repository contains four personal software projects that I have developed a
 
 ---
 
+## Project Overview
+
+| Project                         | Area                    | Main Purpose                                 |
+| ------------------------------- | ----------------------- | -------------------------------------------- |
+| FLL Scoreboard                  | Web Development         | Track and rank robotics tournament scores    |
+| FLL Schedule Generator          | Algorithms / Automation | Automatically generate competition schedules |
+| Premier League Touchline Manager        | Game Development        | Simulate managing a European football club   |
+| FPL Neural Network              | Machine Learning        | Predict Fantasy Premier League player points |
+
+These projects represent my work across **software development, automation, algorithms, game development, data analysis, and machine learning**, with each project involving a different technical challenge and approach.
+
+---
+
 ## 1. FLL Tournament Leaderboard
 
 A web-based leaderboard designed for use during a **FIRST LEGO League (FLL) robotics tournament** hosted by my school.
@@ -100,16 +113,3 @@ This is currently the least complete of the four projects and is the project I a
 * Improve the model's treatment of postponed and rescheduled fixtures
 * Complete training and testing of the neural network
 * Evaluate predictions against the current FPL season
-
----
-
-## Project Overview
-
-| Project                         | Area                    | Main Purpose                                 |
-| ------------------------------- | ----------------------- | -------------------------------------------- |
-| FLL Tournament Leaderboard      | Web Development         | Track and rank robotics tournament scores    |
-| FLL Robotics Schedule Generator | Algorithms / Automation | Automatically generate competition schedules |
-| Soccer Management Game          | Game Development        | Simulate managing a European football club   |
-| FPL Prediction Neural Network   | Machine Learning        | Predict Fantasy Premier League player points |
-
-These projects represent my work across **software development, automation, algorithms, game development, data analysis, and machine learning**, with each project involving a different technical challenge and approach.
