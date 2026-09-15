@@ -52,7 +52,7 @@ jobs:
 
             manager)
               REPO="https://github.com/Shadow-Blade789/Premier-League-Touchline-Manager.git"
-              FOLDER="Premier-League-Touchline-Manager"
+              FOLDER="PremierLeagueTouchlineManager"
               ;;
 
             neural-network)
