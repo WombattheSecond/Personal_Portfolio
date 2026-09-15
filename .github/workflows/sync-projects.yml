@@ -1,0 +1,90 @@
+name: Sync Projects
+
+on:
+  repository_dispatch:
+    types:
+      - sync-project
+
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Project to sync"
+        required: true
+        type: choice
+        options:
+          - scoreboard
+          - schedule
+          - manager
+          - neural-network
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout portfolio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine project
+        id: project
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "project=${{ github.event.client_payload.project }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "project=${{ inputs.project }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync project
+        env:
+          PROJECT: ${{ steps.project.outputs.project }}
+        run: |
+          case "$PROJECT" in
+
+            schedule)
+              REPO="https://github.com/WombattheSecond/SoftwareEngineeringProjectCreateNight.git"
+              FOLDER="FLL_Schedule_Generator"
+              ;;
+
+            manager)
+              REPO="https://github.com/Shadow-Blade789/Premier-League-Touchline-Manager.git"
+              FOLDER="Premier_League_Manager_Game"
+              ;;
+
+            neural-network)
+              REPO="https://github.com/WombattheSecond/Premier_League_ML_Predictions.git"
+              FOLDER="FPL_Neural_Network"
+              ;;
+
+            *)
+              echo "Unknown project: $PROJECT"
+              exit 1
+              ;;
+          esac
+
+          echo "Syncing $PROJECT"
+
+          rm -rf "$FOLDER"
+
+          git clone --depth 1 "$REPO" "$FOLDER"
+
+          rm -rf "$FOLDER/.git"
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Sync project: ${{ steps.project.outputs.project }}"
+          git push
