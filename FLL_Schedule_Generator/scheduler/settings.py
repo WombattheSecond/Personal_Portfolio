@@ -1,4 +1,3 @@
-#My Code
 RUNS_PER_TEAM = 3
 
 MATCH_TIME = 2.5
